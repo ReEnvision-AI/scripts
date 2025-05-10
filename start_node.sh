@@ -88,7 +88,7 @@ podman --runtime /usr/local/bin/crun run -d \
     --pull=newer --replace \
     -e CUDA_VISIBLE_DEVICES="${cuda_device}" \
     -p "${PORT}:${PORT}" \
-    --network pasta \
+    --network pasta:--map-gw \
     --ipc host \
     --device "nvidia.com/gpu=all" \
     --volume "petals-cache_${cuda_device}:/cache" \
