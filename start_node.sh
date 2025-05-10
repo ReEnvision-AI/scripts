@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 # Source the logging function
 if [ -f "$(dirname "$0")/logging.sh" ]; then
@@ -92,7 +91,7 @@ podman --runtime /usr/local/bin/crun run -d \
     -p "${PORT}:${PORT}" \
     --network pasta \
     --ipc host \
-    --device nvidia.com/gpu="${cuda_device}" \
+    --device "nvidia.com/gpu=${cuda_device}" \
     --volume "petals-cache_${cuda_device}:/cache" \
     --name "${NAME}" \
     --memory "${MEMORY}" \

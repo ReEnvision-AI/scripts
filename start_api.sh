@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 # Source the logging function
 if [ -f "$(dirname "$0")/logging.sh" ]; then
@@ -38,7 +37,7 @@ log_message "Starting API server ..."
 podman --runtime /usr/local/bin/crun run -d \
     --pull newer \
     --replace \
-    -p $port:$port \
+    -p "${PORT}:${PORT}" \
     --ipc host \
     --device "nvidia.com/gpu=${GPU}" \
     --volume api-cache:/cache \

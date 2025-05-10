@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 # Source the logging function
 if [ -f "$(dirname "$0")/logging.sh" ]; then
