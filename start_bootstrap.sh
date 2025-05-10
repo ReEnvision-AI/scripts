@@ -27,7 +27,7 @@ login_to_github
 
 PORT="8788"
 VERSION="2.3.3"
-CONTAINER='ghcr.io/reenvision-ai/petals:'$NAME
+CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
 NAME='bootstrap'
 # Get external IP
 EXTERNAL_IP=$(curl -s --connect-timeout 5 https://api.ipify.org)
@@ -52,7 +52,7 @@ podman --runtime /usr/local/bin/crun run -d \
     --name "${NAME}" \
     -p "${PORT}:${PORT}" \
     --volume bootstrap-cache:/cache \
-    $container \
+    $CONTAINER \
     python -m petals.cli.run_dht \
     --identity_path /cache/p2p.id \
     --use_auto_relay \
