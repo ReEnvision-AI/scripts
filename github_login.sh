@@ -30,3 +30,4 @@ if [ -z "${GITHUBLOGIN_SH_INCLUDED+x}" ]; then
           exit 1
       fi
     }
+fi
