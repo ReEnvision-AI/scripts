@@ -57,7 +57,6 @@ VERSION="2.3.3"
 MODEL="meta-llama/Llama-3.3-70B-Instruct"
 MAX_LENGTH=136192
 ALLOC_TIMEOUT=6000
-MEMORY="32g"
 QUANT_TYPE="nf4"
 ATTN_CACHE_TOKENS=128000
 CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
@@ -91,10 +90,9 @@ podman --runtime /usr/local/bin/crun run -d \
     -p "${PORT}:${PORT}" \
     --network pasta \
     --ipc host \
-    --device "nvidia.com/gpu=${cuda_device}" \
+    --device "nvidia.com/gpu=all" \
     --volume "petals-cache_${cuda_device}:/cache" \
     --name "${NAME}" \
-    --memory "${MEMORY}" \
     "${CONTAINER}" \
     python -m petals.cli.run_server \
     --public_ip "${EXTERNAL_IP}" \
