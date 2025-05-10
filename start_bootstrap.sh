@@ -1,27 +1,68 @@
 #!/bin/bash
+set -x
 
-port=8788
-token='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'
-version='2.3.3'
-container='ghcr.io/reenvision-ai/petals:'$version
-name='bootstrap'
-CR_PAT='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'
-external_ip=$(curl -s https://api.ipify.org)
-echo $CR_PAT | podman login ghcr.io -u pgawestjones@gmail.com --password-stdin
+# Source the logging function
+if [ -f "$(dirname "$0")/logging.sh" ]; then
+    . "$(dirname "$0")/logging.sh"
+else
+    echo "ERROR: logging.sh not found in script directory"
+    exit 1
+fi
 
-set -x 
-podman kill $name > /dev/null 2>&1
+# Source the github login function
+if [ -f "$(dirname "$0")/github_login.sh" ]; then
+    . "$(dirname "$0")/github_login.sh"
+else
+    echo "ERROR: github_login.sh not found in script directory"
+    exit 1
+fi
 
-podman run -d \
+# Check if crun runtime exists
+if [ ! -f "/usr/local/bin/crun" ]; then
+    log_message "ERROR: crun runtime not found at /usr/local/bin/crun"
+    exit 1
+fi
+
+login_to_github
+
+PORT="8788"
+VERSION="2.3.3"
+CONTAINER='ghcr.io/reenvision-ai/petals:'$NAME
+NAME='bootstrap'
+# Get external IP
+EXTERNAL_IP=$(curl -s --connect-timeout 5 https://api.ipify.org)
+if [ -z "$EXTERNAL_IP" ]; then
+    log_message "ERROR: Failed to fetch external IP"
+    exit 1
+fi
+log_message "External IP: $EXTERNAL_IP"
+
+# Stop and remove existing container if it exists
+if podman ps -a --filter "name=${NAME}" --format "{{.ID}}" | grep -q .; then
+    log_message "Stopping and removing existing container ${NAME}..."
+    podman stop "${NAME}" >/dev/null 2>&1
+    podman rm "${NAME}" >/dev/null 2>&1
+fi
+
+log_message "Starting Bootstrap Server..."
+podman --runtime /usr/local/bin/crun run -d \
     --pull=newer \
     --replace \
     --restart=always \
-    --name $name \
-    -p $port:$port \
+    --name "${NAME}" \
+    -p "${PORT}:${PORT}" \
     --volume bootstrap-cache:/cache \
     $container \
     python -m petals.cli.run_dht \
     --identity_path /cache/p2p.id \
     --use_auto_relay \
-    --host_maddrs '/ip4/0.0.0.0/tcp/8788' \
-    --public_ip $external_ip
+    --host_maddrs "/ip4/0.0.0.0/tcp/${PORT}" \
+    --public_ip "${EXTERNAL_IP}"
+
+if [ $? -ne 0 ]; then
+    log_message "ERROR: Failed to start Bootstrap server"
+    exit 1
+fi
+
+log_message "Bootstrap server started successfully!"
+log_message "Container name: ${NAME}"

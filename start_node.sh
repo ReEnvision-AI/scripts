@@ -1,13 +1,25 @@
 #!/bin/bash
+set -x
 
-# Function to log messages
-log_message() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
+# Source the logging function
+if [ -f "$(dirname "$0")/logging.sh" ]; then
+    . "$(dirname "$0")/logging.sh"
+else
+    echo "ERROR: logging.sh not found in script directory"
+    exit 1
+fi
+
+# Source the github login function
+if [ -f "$(dirname "$0")/github_login.sh" ]; then
+    . "$(dirname "$0")/github_login.sh"
+else
+    echo "ERROR: github_login.sh not found in script directory"
+    exit 1
+fi
 
 # Function to check if a command exists
 command_exists() {
-  command -v "$1" >/dev/null 2>&1
+    command -v "$1" >/dev/null 2>&1
 }
 
 # Check for required commands
@@ -26,11 +38,11 @@ fi
 
 # Check if an argument is provided
 if [ -z "$1" ]; then
-        log_message "Error: Usage: $0 <cuda_device>"
-        exit 1
+    log_message "ERROR: Usage: $0 <cuda_device>"
+    exit 1
 fi
 
-# Ccheck for non-negative CUDA device
+# Check for non-negative CUDA device
 case "$1" in
     ''|*[!0-9]*)
         log_message "ERROR: CUDA device must be a non-negative integer"
@@ -40,15 +52,6 @@ esac
 
 cuda_device=$1
 
-# Load sensitive data from environment variables or exit if not set
-CR_PAT="${CR_PAT:-}"
-HF_TOKEN="${HF_TOKEN:-}"
-CR_USER="${CR_USER:-}"
-if [ -z "$CR_PAT" ] || [ -z "$HF_TOKEN" ] || [ -z "$CR_USER" ]; then
-    log_message "ERROR: CR_USER, CR_PAT, and HF_TOKEN environment variables must be set"
-    log_message "Example: export CR_USER='your_github_email' CR_PAT='your_github_token' HF_TOKEN='your_hf_token'"
-    exit 1
-fi
 
 # Configuration variables
 VERSION="2.3.3"
@@ -72,13 +75,7 @@ if [ -z "$EXTERNAL_IP" ]; then
 fi
 log_message "External IP: $EXTERNAL_IP"
 
-# Login to GitHub Container Registry
-log_message "Logging into ghcr.io..."
-echo "$CR_PAT" | podman login ghcr.io -u $CR_USER --password-stdin
-if [ $? -ne 0 ]; then
-    log_message "ERROR: Failed to login to ghcr.io"
-    exit 1
-fi
+login_to_github
 
 # Stop and remove existing container if it exists
 if podman ps -a --filter "name=${NAME}" --format "{{.ID}}" | grep -q .; then
