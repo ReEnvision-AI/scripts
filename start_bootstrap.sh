@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 # Source the logging function
 if [ -f "$(dirname "$0")/logging.sh" ]; then
@@ -57,7 +56,7 @@ podman --runtime /usr/local/bin/crun run -d \
     --identity_path /cache/p2p.id \
     --use_auto_relay \
     --host_maddrs "/ip4/0.0.0.0/tcp/${PORT}" \
-    --public_ip "${EXTERNAL_IP}"
+    --announce_maddrs "/ip4/${EXTERNAL_IP}/tcp/${PORT}"
 
 if [ $? -ne 0 ]; then
     log_message "ERROR: Failed to start Bootstrap server"
