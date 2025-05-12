@@ -19,6 +19,13 @@ fi
 login_to_github
 
 VERSION='0.3.6'
+# Check if version is provided as argument
+if [ ! -z "$1" ]; then
+    VERSION="$1"
+    log_message "Using provided version: ${VERSION}"
+else
+    log_message "Using default version: ${VERSION}"
+fi
 
 PORT=5000
 NAME=api
