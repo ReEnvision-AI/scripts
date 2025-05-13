@@ -49,8 +49,9 @@ podman --runtime /usr/local/bin/crun run -d \
     --replace \
     --restart=always \
     --name "${NAME}" \
-    -p "${PORT}:${PORT}" \
     --volume bootstrap-cache:/cache \
+    --network host \
+    --ipc host \
     $CONTAINER \
     python -m petals.cli.run_dht \
     --identity_path /cache/p2p.id \

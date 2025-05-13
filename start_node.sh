@@ -87,8 +87,7 @@ log_message "Starting Petals server on CUDA device ${cuda_device}..."
 podman --runtime /usr/local/bin/crun run -d \
     --pull=newer --replace \
     -e CUDA_VISIBLE_DEVICES="${cuda_device}" \
-    -p "${PORT}:${PORT}" \
-    --network pasta:--map-gw \
+    --network host \
     --ipc host \
     --device "nvidia.com/gpu=all" \
     --volume "petals-cache_${cuda_device}:/cache" \
