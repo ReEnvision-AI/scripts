@@ -54,6 +54,14 @@ cuda_device=$1
 
 # Configuration variables
 VERSION="2.3.3"
+# Check if version is provided as argument
+if [ ! -z "$2" ]; then
+    VERSION="$2"
+    log_message "Using provided version: ${VERSION}"
+else
+    log_message "Using default version: ${VERSION}"
+fi
+
 MODEL="nvidia/Llama-3_3-Nemotron-Super-49B-v1"
 MAX_LENGTH=136192
 ALLOC_TIMEOUT=6000
