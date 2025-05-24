@@ -37,16 +37,10 @@ for cmd in podman curl python3; do
     fi
 done
 
-RUNTIME="/usr/local/bin/crun"
-# Check if crun runtime exists
-if [ ! -f "${RUNTIME}" ]; then
-    #log_message "WARN: crun runtime not found at /usr/local/bin/crun"
-    #exit 1
-    RUNTIME="/usr/bin/crun"
-    if [ ! -f "${RUNTIME}" ]; then
-    log_message "WARNING: crun runtime not found at /usr/local/bin/crun nor /usr/bin/crun"
+RUNTIME=$(podman info --format '{{.Host.OCIRuntime.Path}}' 2>/dev/null || echo "/usr/bin/crun")
+if [ ! -f "$RUNTIME" ]; then
+    log_message "ERROR: OCI runtime not found at $RUNTIME"
     exit 1
-fi
 fi
 
 
@@ -68,14 +62,8 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="2.3.4"
-# Check if version is provided as argument
-if [ ! -z "$2" ]; then
-    VERSION="$2"
-    log_message "Using provided version: ${VERSION}"
-else
-    log_message "Using default version: ${VERSION}"
-fi
+VERSION="${VERSION:-${2:-2.3.4}}"
+log_message "Using version: ${VERSION}"
 
 # Display model selection menu
 echo "Please select a model:"
@@ -86,7 +74,7 @@ done
 # Get user selection
 while true; do
     read -p "Enter the number of your choice (1-${#MODELS[@]}): " choice
-    if [[ "$choice" =~ ^[1-2]$ ]]; then
+    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#MODELS[@]}" ]; then
         MODEL=${MODELS[$((choice-1))]}
         break
     else
@@ -94,15 +82,17 @@ while true; do
     fi
 done
 
-MAX_LENGTH=136192
-ALLOC_TIMEOUT=6000
-QUANT_TYPE="nf4"
-ATTN_CACHE_TOKENS=128000
+MAX_LENGTH="${MAX_LENGTH:-136192}"
+ALLOC_TIMEOUT="${ALLOC_TIMEOUT:-6000}"
+QUANT_TYPE="${QUANT_TYPE:-nf4}"
+ATTN_CACHE_TOKENS="${ATTN_CACHE_TOKENS:-128000}"
 CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
 NAME="node_cuda_${cuda_device}"
 
-DEFAULT_PORT=$((58527 + $1))
-read -p "\n\nEnter port number (press Enter for default value of ${DEFAULT_PORT}): " user_port
+BASE_PORT="${BASE_PORT:-58527}"
+DEFAULT_PORT=$((BASE_PORT + cuda_device))
+echo -e "\n"
+read -p "Enter port number (press Enter for default value of ${DEFAULT_PORT}): " user_port
 if [ -z "$user_port" ]; then
     PORT="${DEFAULT_PORT}"
 else
@@ -132,9 +122,12 @@ log_message "External IP: $EXTERNAL_IP"
 login_to_github
 
 # Stop and remove existing container if it exists
-if podman ps -a --filter "name=${NAME}" --format "{{.ID}}" | grep -q .; then
-    log_message "Stopping and removing existing container ${NAME}..."
+if podman ps -q --filter "name=${NAME}" | grep -q .; then
+    log_message "Stopping running container ${NAME}..."
     podman stop "${NAME}" >/dev/null 2>&1
+fi
+if podman ps -a -q --filter "name=${NAME}" | grep -q .; then
+    log_message "Removing existing container ${NAME}..."
     podman rm "${NAME}" >/dev/null 2>&1
 fi
 
@@ -160,10 +153,17 @@ podman --runtime "${RUNTIME}" run -d \
     --throughput eval \
     "${MODEL}"
 
-if [ $? -ne 0 ]; then
-    log_message "ERROR: Failed to start Petals server"
+if [ $? -ne 0 ] || [ "$(podman inspect -f '{{.State.Running}}' "${NAME}" 2>/dev/null)" != "true" ]; then
+    log_message "ERROR: Container ${NAME} failed to start"
     exit 1
 fi
 
 log_message "Petals server started successfully!"
 log_message "Container name: ${NAME}"
+echo -e "\n"
+read -p "Do you want to start viewing the logs for ${NAME}? (y/N): " logs
+if [[ "$logs" =~ ^[Yy]$ ]]; then
+    podman logs -f "${NAME}"
+else
+    log_message "To view logs later, run: podman logs -f ${NAME}"
+fi
