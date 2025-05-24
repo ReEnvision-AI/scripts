@@ -68,7 +68,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="2.3.3"
+VERSION="2.3.4"
 # Check if version is provided as argument
 if [ ! -z "$2" ]; then
     VERSION="$2"
