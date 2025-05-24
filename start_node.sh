@@ -17,7 +17,9 @@ else
 fi
 
 # Check if models file exists
-if [ ! -f "models" ]; then
+if [ -f "$(dirname "$0")/models" ]; then
+    . "$(dirname "$0")/models"
+else
     echo "Error: models file not found. Please create a models file with a list of models."
     exit 1
 fi
@@ -74,8 +76,6 @@ if [ ! -z "$2" ]; then
 else
     log_message "Using default version: ${VERSION}"
 fi
-
-source models
 
 # Display model selection menu
 echo "Please select a model:"
