@@ -101,7 +101,23 @@ ATTN_CACHE_TOKENS=128000
 CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
 NAME="node_cuda_${cuda_device}"
 
-PORT=$((58527 + $1))
+DEFAULT_PORT=$((58527 + $1))
+read -p "\n\nEnter port number (press Enter for default value of ${DEFAULT_PORT}): " user_port
+if [ -z "$user_port" ]; then
+    PORT="${DEFAULT_PORT}"
+else
+    # Check if input is a valid number
+    if ! [[ "$user_port" =~ ^[0-9]+$ ]]; then
+        echo "Error: Port must be a number."
+        exit 1
+    fi
+    # Check if port is within valid range (1-65535)
+    if [ "$user_port" -lt 1 ] || [ "$user_port" -gt 65535 ]; then
+        echo "Error: Port must be between 1 and 65535."
+        exit 1
+    fi
+    PORT=$user_port
+fi
 log_message "Assigned port: $PORT"
 
 # Get external IP
