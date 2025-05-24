@@ -16,6 +16,12 @@ else
     exit 1
 fi
 
+# Check if models file exists
+if [ ! -f "models" ]; then
+    echo "Error: models file not found. Please create a models file with a list of models."
+    exit 1
+fi
+
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -29,11 +35,18 @@ for cmd in podman curl python3; do
     fi
 done
 
+RUNTIME="/usr/local/bin/crun"
 # Check if crun runtime exists
-if [ ! -f "/usr/local/bin/crun" ]; then
-    log_message "ERROR: crun runtime not found at /usr/local/bin/crun"
+if [ ! -f "${RUNTIME}" ]; then
+    #log_message "WARN: crun runtime not found at /usr/local/bin/crun"
+    #exit 1
+    RUNTIME="/usr/bin/crun"
+    if [ ! -f "${RUNTIME}" ]; then
+    log_message "WARNING: crun runtime not found at /usr/local/bin/crun nor /usr/bin/crun"
     exit 1
 fi
+fi
+
 
 # Check if an argument is provided
 if [ -z "$1" ]; then
@@ -62,7 +75,25 @@ else
     log_message "Using default version: ${VERSION}"
 fi
 
-MODEL="meta-llama/Llama-3.3-70B-Instruct"
+source models
+
+# Display model selection menu
+echo "Please select a model:"
+for i in "${!MODELS[@]}"; do
+    echo "$((i+1)). ${MODELS[i]}"
+done
+
+# Get user selection
+while true; do
+    read -p "Enter the number of your choice (1-${#MODELS[@]}): " choice
+    if [[ "$choice" =~ ^[1-2]$ ]]; then
+        MODEL=${MODELS[$((choice-1))]}
+        break
+    else
+        echo "Invalid choice. Please enter a number between 1 and ${#MODELS[@]}."
+    fi
+done
+
 MAX_LENGTH=136192
 ALLOC_TIMEOUT=6000
 QUANT_TYPE="nf4"
@@ -81,6 +112,7 @@ if [ -z "$EXTERNAL_IP" ]; then
 fi
 log_message "External IP: $EXTERNAL_IP"
 
+# Login to github to pull the container
 login_to_github
 
 # Stop and remove existing container if it exists
@@ -92,7 +124,7 @@ fi
 
 # Run the Podman container
 log_message "Starting Petals server on CUDA device ${cuda_device}..."
-podman --runtime /usr/local/bin/crun run -d \
+podman --runtime "${RUNTIME}" run -d \
     --pull=newer --replace \
     -e CUDA_VISIBLE_DEVICES="${cuda_device}" \
     --network host \
