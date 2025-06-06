@@ -37,7 +37,7 @@ for cmd in podman curl python3; do
     fi
 done
 
-RUNTIME=$(podman info --format '{{.Host.OCIRuntime.Path}}' 2>/dev/null || echo "/usr/bin/crun")
+RUNTIME="/usr/local/bin/crun"
 if [ ! -f "$RUNTIME" ]; then
     log_message "ERROR: OCI runtime not found at $RUNTIME"
     exit 1
@@ -62,7 +62,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-2.3.4}}"
+VERSION="${VERSION:-${2:-2.3.5}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
@@ -88,6 +88,7 @@ QUANT_TYPE="${QUANT_TYPE:-nf4}"
 ATTN_CACHE_TOKENS="${ATTN_CACHE_TOKENS:-128000}"
 CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
 NAME="node_cuda_${cuda_device}"
+MAX_CHUNK_SIZE_BYTES="${MAX_CHUNK_SIZE_BYTES:-1073741824}"
 
 BASE_PORT="${BASE_PORT:-58527}"
 DEFAULT_PORT=$((BASE_PORT + cuda_device))
@@ -150,6 +151,7 @@ podman --runtime "${RUNTIME}" run -d \
     --max_alloc_timeout "${ALLOC_TIMEOUT}" \
     --quant_type "${QUANT_TYPE}" \
     --attn_cache_tokens "${ATTN_CACHE_TOKENS}" \
+    --max_chunk_size_bytes "${MAX_CHUNK_SIZE_BYTES}" \
     --throughput eval \
     "${MODEL}"
 
