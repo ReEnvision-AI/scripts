@@ -30,7 +30,7 @@ fi
 PORT=5000
 NAME=api
 GPU=0
-CONTAINER="ghcr.io/reenvision-ai/petals-api:${VERSION}"
+CONTAINER="ghcr.io/reenvision-ai/agentgrid-api:${VERSION}"
 
 # Stop and remove existing container if it exists
 if podman ps -a --filter "name=${NAME}" --format "{{.ID}}" | grep -q .; then

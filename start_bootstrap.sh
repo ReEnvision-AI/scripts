@@ -25,8 +25,11 @@ fi
 login_to_github
 
 PORT="8788"
-VERSION="2.3.3"
-CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
+
+VERSION="${VERSION:-${2:-1.1.0}}"
+log_message "Using version: ${VERSION}"
+
+CONTAINER="ghcr.io/reenvision-ai/agent-grid:${VERSION}"
 NAME='bootstrap'
 # Get external IP
 EXTERNAL_IP=$(curl -s --connect-timeout 5 https://api.ipify.org)
@@ -53,7 +56,7 @@ podman --runtime /usr/local/bin/crun run -d \
     --network host \
     --ipc host \
     $CONTAINER \
-    python -m petals.cli.run_dht \
+    python -m agentgrid.cli.run_dht \
     --identity_path /cache/p2p.id \
     --use_auto_relay \
     --host_maddrs "/ip4/0.0.0.0/tcp/${PORT}" \
@@ -64,5 +67,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-log_message "Bootstrap server started successfully!"
+log_message "Agent Grid Bootstrap server started successfully!"
 log_message "Container name: ${NAME}"

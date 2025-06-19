@@ -62,7 +62,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-2.3.5}}"
+VERSION="${VERSION:-${2:-1.1.0}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
@@ -86,7 +86,7 @@ MAX_LENGTH="${MAX_LENGTH:-136192}"
 ALLOC_TIMEOUT="${ALLOC_TIMEOUT:-6000}"
 QUANT_TYPE="${QUANT_TYPE:-nf4}"
 ATTN_CACHE_TOKENS="${ATTN_CACHE_TOKENS:-128000}"
-CONTAINER="ghcr.io/reenvision-ai/petals:${VERSION}"
+CONTAINER="ghcr.io/reenvision-ai/agent-grid:${VERSION}"
 NAME="node_cuda_${cuda_device}"
 MAX_CHUNK_SIZE_BYTES="${MAX_CHUNK_SIZE_BYTES:-1073741824}"
 
@@ -133,17 +133,17 @@ if podman ps -a -q --filter "name=${NAME}" | grep -q .; then
 fi
 
 # Run the Podman container
-log_message "Starting Petals server on CUDA device ${cuda_device}..."
+log_message "Starting Agent Grid server on CUDA device ${cuda_device}..."
 podman --runtime "${RUNTIME}" run -d \
     --pull=newer --replace \
     -e CUDA_VISIBLE_DEVICES="${cuda_device}" \
     --network host \
     --ipc host \
     --device "nvidia.com/gpu=all" \
-    --volume "petals-cache_${cuda_device}:/cache" \
+    --volume "grid-cache_${cuda_device}:/cache" \
     --name "${NAME}" \
     "${CONTAINER}" \
-    python -m petals.cli.run_server \
+    python -m agentgrid.cli.run_server \
     --public_ip "${EXTERNAL_IP}" \
     --port "${PORT}" \
     --inference_max_length "${MAX_LENGTH}" \
@@ -160,7 +160,7 @@ if [ $? -ne 0 ] || [ "$(podman inspect -f '{{.State.Running}}' "${NAME}" 2>/dev/
     exit 1
 fi
 
-log_message "Petals server started successfully!"
+log_message "Agent Grid server started successfully!"
 log_message "Container name: ${NAME}"
 echo -e "\n"
 read -p "Do you want to start viewing the logs for ${NAME}? (y/N): " logs
