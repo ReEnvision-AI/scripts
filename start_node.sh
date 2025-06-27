@@ -62,7 +62,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-1.1.0}}"
+VERSION="${VERSION:-${2:-1.1.1}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
@@ -137,6 +137,8 @@ log_message "Starting Agent Grid server on CUDA device ${cuda_device}..."
 podman --runtime "${RUNTIME}" run -d \
     --pull=newer --replace \
     -e CUDA_VISIBLE_DEVICES="${cuda_device}" \
+    -e HF_HUB_DISABLE_XET=1 \
+    -e AGENT_GRID_VERSION='1.1.1' \
     --network host \
     --ipc host \
     --device "nvidia.com/gpu=all" \

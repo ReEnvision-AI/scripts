@@ -18,7 +18,7 @@ fi
 
 login_to_github
 
-VERSION='0.3.6'
+VERSION='0.3.8'
 # Check if version is provided as argument
 if [ ! -z "$1" ]; then
     VERSION="$1"
@@ -44,6 +44,7 @@ log_message "Starting API server ..."
 podman --runtime /usr/local/bin/crun run -d \
     --pull newer \
     --replace \
+    -e HF_HUB_DISABLE_XET=1 \
     -p "${PORT}:${PORT}" \
     --ipc host \
     --device "nvidia.com/gpu=${GPU}" \
