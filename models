@@ -3,4 +3,5 @@ MODELS=(
     "Qwen/Qwen2.5-Coder-32B-Instruct"
     "Qwen/Qwen3-30B-A3B"
     "nvidia/Llama-3.3-Nemotron-70B-Feedback"
+    "nvidia/Llama-3_3-Nemotron-Super-49B-v1"
 )

@@ -138,7 +138,7 @@ podman --runtime "${RUNTIME}" run -d \
     --pull=newer --replace \
     -e CUDA_VISIBLE_DEVICES="${cuda_device}" \
     -e HF_HUB_DISABLE_XET=1 \
-    -e AGENT_GRID_VERSION='1.1.1' \
+    -e AGENT_GRID_VERSION='1.1.2' \
     --network host \
     --ipc host \
     --device "nvidia.com/gpu=all" \
