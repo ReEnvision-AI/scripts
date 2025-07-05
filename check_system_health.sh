@@ -16,4 +16,4 @@ df -h /
 echo
 
 echo "✅  Top 5 memory-hungry processes:"
-ps -eo pid,comm,%mem,%cpu --sort=-%mem | head -n 6
+top -b -o +%MEM | head -n 12 | tail -n 6

@@ -12,6 +12,11 @@ fi
 if [ -z "${GITHUBLOGIN_SH_INCLUDED+x}" ]; then
     GITHUBLOGIN_SH_INCLUDED=1
     login_to_github() {
+      if podman login --get-login ghcr.io >/dev/null 2>&1; then
+          log_message "Already logged into ghcr.io"
+          return 0
+      fi
+
       # Load sensitive data from environment variables or exit if not set
       CR_PAT="${CR_PAT:-}"
       HF_TOKEN="${HF_TOKEN:-}"

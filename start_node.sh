@@ -46,8 +46,11 @@ fi
 
 # Check if an argument is provided
 if [ -z "$1" ]; then
-    log_message "ERROR: Usage: $0 <cuda_device>"
-    exit 1
+    log_message "INFO: No CUDA device specified, attempting to select the best one..."
+    cuda_device=$(python3 -c "import torch; print(torch.cuda.current_device() if torch.cuda.is_available() else 0)")
+    log_message "Selected CUDA device: ${cuda_device}"
+else
+    cuda_device=$1
 fi
 
 # Check for non-negative CUDA device
@@ -62,7 +65,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-1.1.1}}"
+VERSION="${VERSION:-${2:-1.2.0}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
