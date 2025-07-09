@@ -40,6 +40,12 @@ done
 RUNTIME="/usr/local/bin/crun"
 if [ ! -f "$RUNTIME" ]; then
     log_message "ERROR: OCI runtime not found at $RUNTIME"
+    #exit 1
+    RUNTIME="/usr/bin/crun"
+fi
+
+if [ ! -f "$RUNTIME" ]; then
+    log_message "ERROR: OCI runtime not found at $RUNTIME"
     exit 1
 fi
 
@@ -65,7 +71,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-1.2.0}}"
+VERSION="${VERSION:-${2:-1.3.0}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
@@ -145,7 +151,7 @@ podman --runtime "${RUNTIME}" run -d \
     --network host \
     --ipc host \
     --device "nvidia.com/gpu=all" \
-    --volume "grid-cache_${cuda_device}:/cache" \
+    --volume "grid-cache:/cache" \
     --name "${NAME}" \
     "${CONTAINER}" \
     python -m agentgrid.cli.run_server \
