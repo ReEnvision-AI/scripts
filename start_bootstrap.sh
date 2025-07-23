@@ -26,7 +26,7 @@ login_to_github
 
 PORT="8788"
 
-VERSION="${VERSION:-${1:-1.3.0}}"
+VERSION="${VERSION:-${1:-1.3.1}}"
 log_message "Using version: ${VERSION}"
 
 CONTAINER="ghcr.io/reenvision-ai/agent-grid:${VERSION}"
