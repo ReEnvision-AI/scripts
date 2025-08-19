@@ -163,6 +163,7 @@ podman --runtime "${RUNTIME}" run -d \
     --quant_type "${QUANT_TYPE}" \
     --attn_cache_tokens "${ATTN_CACHE_TOKENS}" \
     --max_chunk_size_bytes "${MAX_CHUNK_SIZE_BYTES}" \
+    --max_batch_size 24576 \
     --throughput eval \
     "${MODEL}"
 
