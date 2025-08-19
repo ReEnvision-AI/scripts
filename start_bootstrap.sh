@@ -29,6 +29,9 @@ PORT="8788"
 VERSION="${BOOTSTRAP_VERSION:-${1:-1.3.4_beta-bootstrap}}"
 log_message "Using version: ${VERSION}"
 
+IDENTITY_FILENAME="${2:-identity_0.key}"
+log_message "Using identity key: ${IDENTITY_FILENAME}"
+
 CONTAINER="ghcr.io/reenvision-ai/agent-grid:${VERSION}"
 NAME='bootstrap'
 # Get external IP
@@ -57,7 +60,7 @@ podman --runtime /usr/local/bin/crun run -d \
     --ipc host \
     $CONTAINER \
     python -m agentgrid.cli.run_dht \
-    --identity_path /cache/p2p.id \
+    --identity_path "/app/identity_files/${IDENTITY_FILENAME}"\
     --use_auto_relay \
     --host_maddrs "/ip4/0.0.0.0/tcp/${PORT}" \
     --announce_maddrs "/ip4/${EXTERNAL_IP}/tcp/${PORT}"
