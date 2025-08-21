@@ -24,7 +24,7 @@ fi
 
 login_to_github
 
-VERSION='1.0.6'
+VERSION='1.0.8'
 CONTAINER="ghcr.io/reenvision-ai/health.reenvision.ai:${VERSION}"
 PORT=5588
 NAME='health'

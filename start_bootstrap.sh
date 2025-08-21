@@ -26,7 +26,7 @@ login_to_github
 
 PORT="8788"
 
-VERSION="${BOOTSTRAP_VERSION:-${1:-1.3.4_beta-bootstrap}}"
+VERSION="${BOOTSTRAP_VERSION:-${1:-1.4.1-bootstrap}}"
 log_message "Using version: ${VERSION}"
 
 IDENTITY_FILENAME="${2:-identity_0.key}"
