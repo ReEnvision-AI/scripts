@@ -4,7 +4,10 @@
 if [ -z "${LOGGING_SH_INCLUDED+x}" ]; then
     LOGGING_SH_INCLUDED=1
 
-    LOG_FILE="/var/log/scripts.log"
+    LOG_FILE="$HOME/.local/log/scripts.log"
+
+# Create log directory if it doesn't exist
+mkdir -p "$(dirname "$LOG_FILE")"
 
 # Rotate logs if log file is larger than 1MB
 if [ -f "$LOG_FILE" ] && [ $(stat -c%s "$LOG_FILE") -gt 1048576 ]; then
