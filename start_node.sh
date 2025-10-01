@@ -71,7 +71,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-1.5.0-flash}}"
+VERSION="${VERSION:-${2:-1.5.1-flash}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
