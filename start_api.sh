@@ -45,6 +45,7 @@ podman --runtime /usr/local/bin/crun run -d \
     --pull newer \
     --replace \
     -e HF_HUB_DISABLE_XET=1 \
+    -e HUGGING_FACE_HUB_TOKEN=$HF_TOKEN \
     -p "${PORT}:${PORT}" \
     --ipc host \
     --device "nvidia.com/gpu=${GPU}" \
