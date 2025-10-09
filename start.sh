@@ -28,11 +28,26 @@ get_script_for_option() {
 get_session_for_option() {
     case "$1" in
         1) echo "bootstrap" ;;
-        2) echo "server" ;;
+        2) get_next_server_session_name ;;
         3) echo "health" ;;
         4) echo "api" ;;
         *) return 1 ;;
     esac
+}
+
+get_next_server_session_name() {
+    local base="server"
+    local index=0
+    local candidate
+
+    while true; do
+        candidate="${base}_${index}"
+        if ! tmux has-session -t "$candidate" 2>/dev/null; then
+            echo "$candidate"
+            return 0
+        fi
+        index=$((index + 1))
+    done
 }
 
 run_script_in_tmux() {
