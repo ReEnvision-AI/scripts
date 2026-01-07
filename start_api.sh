@@ -18,7 +18,7 @@ fi
 
 login_to_github
 
-VERSION='1.1.0'
+VERSION='1.2.0'
 # Check if version is provided as argument
 if [ ! -z "$1" ]; then
     VERSION="$1"
