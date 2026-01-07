@@ -71,7 +71,7 @@ cuda_device=$1
 
 
 # Configuration variables
-VERSION="${VERSION:-${2:-1.6.0-flash}}"
+VERSION="${VERSION:-${2:-1.6.1-flash}}"
 log_message "Using version: ${VERSION}"
 
 # Display model selection menu
@@ -157,7 +157,6 @@ podman --runtime "${RUNTIME}" run -d \
     python -m agentgrid.cli.run_server \
     --public_ip "${EXTERNAL_IP}" \
     --port "${PORT}" \
-    --inference_max_length "${MAX_LENGTH}" \
     --token "${HF_TOKEN}" \
     --max_alloc_timeout "${ALLOC_TIMEOUT}" \
     --quant_type "${QUANT_TYPE}" \
